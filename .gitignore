@@ -1,0 +1,7 @@
+*.h5
+__pycache__/
+*.pyc
+venv/
+.venv/
+jenkins-venv/
+.ipynb_checkpoints/
