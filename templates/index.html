@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload ECG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+        #bg-video {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        #overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            width: 100%;
+            max-width: 600px;
+        }
+        .file-input {
+            margin: 20px 0;
+        }
+        .model-buttons button {
+            margin-bottom: 10px;
+        }
+        /* Performance panel in top-right corner */
+        .performance-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            text-align: right;
+        }
+        .performance-links {
+            display: none;
+            margin-top: 5px;
+        }
+        .performance-links a {
+            display: block;
+            margin-bottom: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{{ url_for('static', filename='videos/real_heart_beat.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div id="overlay"></div>
+
+    <!-- Centered upload card -->
+    <div class="card">
+        <h2 class="mb-4">Upload ECG Image for Prediction</h2>
+
+        <form id="predictionForm" method="POST" enctype="multipart/form-data">
+            <input class="form-control file-input" type="file" name="my_image" accept="image/*" required>
+
+            <div class="model-buttons">
+                <!-- CNN (Model1) -->
+                <button type="submit" formaction="{{ url_for('get_output_model1') }}" class="btn btn-primary w-100 mb-2">Predict with CNN Model</button>
+                <!-- VGG16 (Model2) -->
+                <button type="submit" formaction="{{ url_for('get_output_model2') }}" class="btn btn-primary w-100 mb-2">Predict with VGG16 Model</button>
+                <!-- VGG19 (Model3) -->
+                <button type="submit" formaction="{{ url_for('get_output_model3') }}" class="btn btn-primary w-100 mb-2">Predict with VGG19 Model</button>
+                <!-- MobileNet (Model4) -->
+                <button type="submit" formaction="{{ url_for('get_output_model4') }}" class="btn btn-primary w-100 mb-2">Predict with MobileNet Model</button>
+            </div>
+        </form>
+
+        <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3 w-100">Logout</a>
+    </div>
+
+    <!-- Performance panel top-right -->
+    <div class="performance-panel">
+        <button class="btn btn-info" id="showPerformanceBtn">Show Model Performance</button>
+        <div class="performance-links" id="performanceLinks">
+            <a href="{{ url_for('performance1') }}" class="btn btn-primary">CNN Model Performance</a>
+            <a href="{{ url_for('performance2') }}" class="btn btn-primary">VGG16 Model Performance</a>
+            <a href="{{ url_for('performance3') }}" class="btn btn-primary">VGG19 Model Performance</a>
+            <a href="{{ url_for('performance4') }}" class="btn btn-primary">MobileNet Model Performance</a>
+        </div>
+    </div>
+
+    <script>
+        const showBtn = document.getElementById('showPerformanceBtn');
+        const performanceLinks = document.getElementById('performanceLinks');
+
+        showBtn.addEventListener('click', () => {
+            if (performanceLinks.style.display === "none" || performanceLinks.style.display === "") {
+                performanceLinks.style.display = "block";
+                showBtn.textContent = "Hide Model Performance";
+            } else {
+                performanceLinks.style.display = "none";
+                showBtn.textContent = "Show Model Performance";
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Performance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: url('{{ url_for("static", filename="images/background.jpg") }}') no-repeat center center fixed;
+      background-size: cover;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .metrics, .graphs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .graph-card {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .card {
+      background: rgb(46, 143, 254);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .metric-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.7);
+    }
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 1000px;
+      text-align: center;
+    }
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: black;
+    }
+    .back-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .back-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: rgb(52, 12, 210);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background-color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="color: #ffffff;">Model Performance</h1>
+
+  <!-- Metrics Section -->
+  <div class="metrics">
+    <div class="card" onclick="openModal('accuracyModal')">
+      <div class="metric-title">Accuracy</div>
+      <div class="metric-value">{{ "%.2f"|format(metrics.accuracy) }}%</div>
+    </div>
+    <div class="card" onclick="openModal('precisionModal')">
+      <div class="metric-title">Precision</div>
+      <div class="metric-value">{{ "%.2f"|format(metrics.precision) }}%</div>
+    </div>
+    <div class="card" onclick="openModal('recallModal')">
+      <div class="metric-title">Recall</div>
+      <div class="metric-value">{{ "%.2f"|format(metrics.recall) }}%</div>
+    </div>
+    <div class="card" onclick="openModal('f1Modal')">
+      <div class="metric-title">F1 Score</div>
+      <div class="metric-value">{{ "%.2f"|format(metrics.f1_score) }}%</div>
+    </div>
+  </div>
+
+  <!-- Graphs Section -->
+  <div class="graphs">
+    <div class="card" onclick="openModal('lossModal')">Loss Graph</div>
+    <div class="card" onclick="openModal('accuracyGraphModal')">Accuracy Graph</div>
+    <div class="card" onclick="openModal('confusionModal')">Confusion Matrix</div>
+    <div class="card" onclick="openModal('datasetModal')">Dataset Distribution</div>
+  </div>
+
+  <!-- Modals -->
+  <div id="accuracyModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('accuracyModal')">&times;</span>
+      <h2>Accuracy</h2>
+      <p>The model achieved an accuracy of <b>{{ "%.2f"|format(metrics.accuracy) }}%</b>.</p>
+    </div>
+  </div>
+
+  <div id="precisionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('precisionModal')">&times;</span>
+      <h2>Precision</h2>
+      <p>Precision is <b>{{ "%.2f"|format(metrics.precision) }}%</b>.</p>
+    </div>
+  </div>
+
+  <div id="recallModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('recallModal')">&times;</span>
+      <h2>Recall</h2>
+      <p>Recall is <b>{{ "%.2f"|format(metrics.recall) }}%</b>.</p>
+    </div>
+  </div>
+
+  <div id="f1Modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('f1Modal')">&times;</span>
+      <h2>F1 Score</h2>
+      <p>F1 Score is <b>{{ "%.2f"|format(metrics.f1_score) }}%</b>.</p>
+    </div>
+  </div>
+
+  <div id="lossModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('lossModal')">&times;</span>
+      <h2>Loss Graph</h2>
+      <img src="{{ loss_graph }}" alt="Loss Graph">
+    </div>
+  </div>
+
+  <div id="accuracyGraphModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('accuracyGraphModal')">&times;</span>
+      <h2>Accuracy Graph</h2>
+      <img src="{{ accuracy_graph }}" alt="Accuracy Graph">
+    </div>
+  </div>
+
+  <div id="confusionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('confusionModal')">&times;</span>
+      <h2>Confusion Matrix</h2>
+      <img src="{{ confusion_matrix_graph }}" alt="Confusion Matrix">
+    </div>
+  </div>
+
+  <div id="datasetModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('datasetModal')">&times;</span>
+      <h2>Dataset Distribution</h2>
+      <img src="{{ url_for('static', filename='dataset_distribution_pie.png') }}" alt="Dataset Distribution Pie Chart">
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="back-container">
+    <a href="{{ url_for('index') }}" class="back-btn">Back</a>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = "block";
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+    window.onclick = function(event) {
+      document.querySelectorAll('.modal').forEach(modal => {
+        if (event.target == modal) modal.style.display = "none";
+      });
+    }
+  </script>
+</body>
+</html>

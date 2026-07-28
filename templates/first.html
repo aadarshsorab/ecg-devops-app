@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome - ECG Classification</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      color: white;
+    }
+
+    #bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%; 
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      z-index: -1;
+      object-fit: cover;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      border-radius: 25px;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: white;
+      color: #3b82f6;
+    }
+
+    /* Contact button in top-right */
+    .contact-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2;
+    }
+
+    /* Contact info box */
+    .contact-box {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 2;
+      font-size: 1rem;
+      line-height: 1.4;
+
+      /* Slide effect */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+    }
+
+    /* Show state */
+    .contact-box.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0); /* Slide to original position */
+    }
+  </style>
+</head>
+<body>
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="{{ url_for('static', filename='videos/medical_bg.mp4') }}" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Contact Button -->
+  <button class="btn contact-btn" onclick="toggleContact()">Contact</button>
+
+  <!-- Contact Info Box -->
+  <div class="contact-box" id="contactBox">
+    📧 Email: aadarshasorab@gmail.com<br>
+    📞 Phone: +91 8197553486
+  </div>
+
+  <div class="container">
+    <h2>Welcome to ECG Image Classification project</h2>
+    <a href="{{ url_for('login') }}" class="btn">Login</a>
+  </div>
+
+  <script>
+    function toggleContact() {
+      document.getElementById("contactBox").classList.toggle("show");
+    }
+  </script>
+</body>
+</html>

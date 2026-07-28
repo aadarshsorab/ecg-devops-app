@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecg-devops-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecg-devops-app
+  template:
+    metadata:
+      labels:
+        app: ecg-devops-app
+    spec:
+      containers:
+        - name: ecg-devops-app
+          image: aadarshsorab/ecg-devops-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
