@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     DOCKER_IMAGE = 'aadarshsorab/ecg-devops-app:latest'
     MODEL_SOURCE = '/mnt/f/ECG-DevOps-App'
@@ -25,6 +24,7 @@ stages {
                 cp "$MODEL_SOURCE/vgg16_ecg_model.h5" .
                 cp "$MODEL_SOURCE/vgg19_ecg_model.h5" .
 
+                echo "ML model files copied successfully:"
                 ls -lh *.h5
             '''
         }
@@ -65,6 +65,7 @@ stages {
 
     stage('Push Docker Image') {
         steps {
+            echo 'Pushing Docker image to Docker Hub...'
             withCredentials([usernamePassword(
                 credentialsId: 'dockerhub-credentials',
                 usernameVariable: 'DOCKER_USERNAME',
@@ -109,4 +110,3 @@ post {
         echo 'ECG CI/CD Pipeline failed.'
     }
 }
-
