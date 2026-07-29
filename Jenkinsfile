@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -17,6 +18,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing Python dependencies...'
+
                 sh '''
                     python3 -m venv jenkins-venv
                     ./jenkins-venv/bin/pip install --upgrade pip
@@ -28,6 +30,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running automated tests...'
+
                 sh '''
                     if [ -f test_app.py ]; then
                         ./jenkins-venv/bin/pytest
@@ -41,6 +44,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building ECG Docker image...'
+
                 sh '''
                     docker build -t $DOCKER_IMAGE .
                 '''
@@ -49,16 +53,30 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                echo 'Pushing Docker image to Docker Hub...'
-                sh '''
-                    docker push $DOCKER_IMAGE
-                '''
+                echo 'Logging in to Docker Hub and pushing image...'
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login \
+                            --username "$DOCKER_USERNAME" \
+                            --password-stdin
+
+                        docker push $DOCKER_IMAGE
+                    '''
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying ECG application to Kubernetes...'
+
                 sh '''
                     kubectl apply -f deployment.yaml --validate=false
                     kubectl apply -f service.yaml --validate=false
@@ -69,6 +87,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 echo 'Checking Kubernetes deployment...'
+
                 sh '''
                     kubectl get deployments
                     kubectl get pods
@@ -88,3 +107,4 @@ pipeline {
         }
     }
 }
+```
